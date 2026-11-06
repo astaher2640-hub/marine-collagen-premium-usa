@@ -16,23 +16,38 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Meta Pixel Code -->
-    <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '934429269550436');
-    fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=934429269550436&ev=PageView&noscript=1"
-    /></noscript>
+   <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(f._fbq==null);n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  
+  fbq('init', '934429269550436'); // আপনার পিক্সেল আইডি
+       
+  // একটি ইউনিক Event ID তৈরি
+  var eventId = 'eventId_' + new Date().getTime();
+  
+  // ব্রাউজার পিক্সেল ট্র্যাক করা
+  fbq('track', 'PageView', {}, {event_id: eventId});
+</script>
     <!-- End Meta Pixel Code -->
-
+<script>
+  // ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে CAPI রিকোয়েস্ট পাঠানো
+  fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ event_id: eventId })
+  })
+  .then(response => response.json())
+  .then(data => console.log('CAPI Success:', data))
+  .catch((error) => console.error('CAPI Error:', error));
+</script>
     <style>
         :root {
             --primary-color: #e63946;
