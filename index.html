@@ -1087,6 +1087,27 @@
             if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
         });
       };
+        // শুধুমাত্র প্রথম সাবমিশনেই ফেসবুক পিক্সেল পারচেস ফায়ার হবে
+        if (typeof fbq === "function" && !hasOrderedThisSession) {
+          fbq("track", "Purchase", {
+            value: totalAmount,
+            currency: "BDT"
+          }, {event_id: eventId}); // এখানে event_id যুক্ত করা হলো
+
+          // ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে সার্ভার সাইডেও পারচেস CAPI পাঠানোর জন্য
+          fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              event_name: "Purchase",
+              event_id: eventId,
+              value: totalAmount,
+              currency: "BDT"
+            })
+          }).catch(err => console.log("CAPI Purchase Error", err));
+        }
     </script>
 </body>
 </html>
