@@ -28,21 +28,21 @@
   
   fbq('init', '934429269550436'); // আপনার পিক্সেল আইডি
        
-  // একটি ইউনিক Event ID তৈরি
-  var eventId = 'eventId_' + new Date().getTime();
+  // পেজ ভিউয়ের জন্য ইউনিক Event ID
+  var pageEventId = 'pageEvent_' + new Date().getTime();
   
   // ব্রাউজার পিক্সেল ট্র্যাক করা
-  fbq('track', 'PageView', {}, {event_id: eventId});
+  fbq('track', 'PageView', {}, {event_id: pageEventId});
 </script>
     <!-- End Meta Pixel Code -->
 <script>
-  // ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে CAPI রিকোয়েস্ট পাঠানো
+  // ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে CAPI রিকোয়েস্ট পাঠানো (Pageview)
   fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ event_id: eventId })
+    body: JSON.stringify({ event_name: 'PageView', event_id: pageEventId })
   })
   .then(response => response.json())
   .then(data => console.log('CAPI Success:', data))
@@ -983,27 +983,35 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
 
-        // শুধুমাত্র প্রথম সাবমিশনেই ফেসবুক পিক্সেল পারচেস ফায়ার হবে
-        if (typeof fbq === "function" && !hasOrderedThisSession) {
+        // ফ্ল্যাগ ট্রু করে দেওয়া হলো যাতে অতিরিক্ত কোনো ক্লিক বা ডাবল কাউন্ট না হয়
+        hasOrderedThisSession = true;
+
+        // প্রতিটি পারচেস অর্ডারের জন্য সম্পূর্ণ নতুন ও ইউনিক Event ID তৈরি করা হলো (ডাবল কাউন্ট রোধ করতে)
+        var purchaseEventId = 'purchase_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+
+        // ১. ব্রাউজার পিক্সেল পারচেস ফায়ার
+        if (typeof fbq === "function") {
           fbq("track", "Purchase", {
             value: totalAmount,
             currency: "BDT"
-          }, {event_id: eventId});
-
-          // ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে সার্ভার সাইডেও পারচেস CAPI পাঠানোর জন্য
-          fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-              event_name: "Purchase",
-              event_id: eventId,
-              value: totalAmount,
-              currency: "BDT"
-            })
-          }).catch(err => console.log("CAPI Purchase Error", err));
+          }, {event_id: purchaseEventId});
         }
+
+        // ২. ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে সার্ভার সাইডে (CAPI) পারচেস পাঠানো
+        fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            event_name: "Purchase",
+            event_id: purchaseEventId,
+            value: totalAmount,
+            currency: "BDT",
+            phone: phone,
+            name: name
+          })
+        }).catch(err => console.log("CAPI Purchase Error", err));
 
         var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
         var formData = new URLSearchParams();
@@ -1020,9 +1028,6 @@
         }).catch(function(err){
           console.log("Form submit error", err);
         });
-
-        // ফ্ল্যাগ ট্রু করে দেওয়া হলো যাতে পরবর্তী ক্লিকের কারণে ডাবল কাউন্ট না হয়
-        hasOrderedThisSession = true;
 
         setTimeout(function() {
           showSuccessMessage(name, phone, address, totalAmount);
@@ -1095,7 +1100,7 @@
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QxcxomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtXZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
         ].forEach(imgSrc => {
             var rvTrack = document.getElementById("rv");
             if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
