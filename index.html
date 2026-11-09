@@ -17,8 +17,7 @@
 
     <!-- Meta Pixel Code -->
     <script>
-      /* ---------- Pixel Guard: পিক্সেলের নিজস্ব অটো ইভেন্ট, SubscribedButtonClick, Microdata 
-         এবং যেকোনো ফালতু ক্লিক ইভেন্ট ফেসবুকে যাওয়ার আগেই আটকাবে ---------- */
+      /* ---------- Pixel Guard: শুধুমাত্র বাটনের অটো-ক্লিক ও ফালতু ইভেন্ট আটকাবে, PageView স্বাভাবিক রাখবে ---------- */
       (function () {
         function shouldBlock(url, body) {
           try {
@@ -45,8 +44,7 @@
             var block = false;
             if (eid.indexOf('ob3_') === 0) block = true;
             else if (ev === 'SubscribedButtonClick' || ev === 'Microdata' || ev === 'Click' || ev === 'Lead') block = true;
-            else if (eid && ev === 'PageView' && eid.indexOf('pageEvent_') !== 0) block = true;
-            else if (eid && ev === 'Purchase' && eid.indexOf('purch_') !== 0) block = true;
+            
             if (block) console.info('[pixel-guard] blocked:', ev, eid);
             return block;
           } catch (e) { return false; }
@@ -133,7 +131,7 @@
         }).catch(function (err) { console.error('CAPI Error:', payload.event_name, err); });
       }
 
-      /* PageView: একই event_id ব্রাউজার পিক্সেল ও সার্ভার (CAPI) দুই জায়গায় যায় */
+      /* PageView: ডাবল কাউন্ট রোধ করতে নির্দিষ্ট একটি আইডি দিয়ে একবারই ব্রাউজার ও সার্ভারে পাঠানো হচ্ছে */
       var pageEventId = 'pageEvent_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
       fbq('track', 'PageView', {}, {event_id: pageEventId});
 
@@ -1187,7 +1185,7 @@
         [
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfirmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LuThHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
         ].forEach(function(imgSrc) {
             var rvTrack = document.getElementById("rv");
