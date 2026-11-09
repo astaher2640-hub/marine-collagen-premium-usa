@@ -16,38 +16,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Meta Pixel Code -->
-   <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(f._fbq==null);n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  
-  fbq('init', '934429269550436'); // আপনার পিক্সেল আইডি
-       
-  // পেজ ভিউয়ের জন্য ইউনিক Event ID
-  var pageEventId = 'pageEvent_' + new Date().getTime();
-  
-  // ব্রাউজার পিক্সেল ট্র্যাক করা
-  fbq('track', 'PageView', {}, {event_id: pageEventId});
-</script>
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(f._fbq==null);n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      
+      fbq('init', '934429269550436'); // পিক্সেল আইডি
+           
+      // পেজ ভিউয়ের জন্য ইউনিক Event ID
+      var pageEventId = 'pageEvent_' + new Date().getTime() + '_' + Math.random().toString(36).substring(2, 7);
+      
+      // ব্রাউজার পিক্সেল ট্র্যাক করা
+      fbq('track', 'PageView', {}, {event_id: pageEventId});
+
+      // CAPI PageView সেন্ড
+      fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_name: 'PageView', event_id: pageEventId })
+      }).catch(function(err){ console.error('CAPI PageView Error:', err); });
+    </script>
     <!-- End Meta Pixel Code -->
-<script>
-  // ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে CAPI রিকোয়েস্ট পাঠানো (Pageview)
-  fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event_name: 'PageView', event_id: pageEventId })
-  })
-  .then(response => response.json())
-  .then(data => console.log('CAPI Success:', data))
-  .catch((error) => console.error('CAPI Error:', error));
-</script>
+
     <style>
         :root {
             --primary-color: #e63946;
@@ -275,6 +270,7 @@
             text-decoration: none;
             margin: 15px 0 10px 0;
             transition: background 0.3s;
+            cursor: pointer;
         }
 
         .btn-order-action:hover {
@@ -341,7 +337,7 @@
         .bar-bg { width: 100%; height: 10px; background: #dcfce7; border-radius: 50px; overflow: hidden; }
         .bar-fill { width: 45%; height: 100%; background: linear-gradient(90deg, #34d399, #059669); border-radius: 50px; }
 
-        /* সমস্যা কার্ড কন্টেইনার (মোবাইল ও পিসির জন্য নিখুঁত রেসপন্সিভ) */
+        /* সমস্যা কার্ড কন্টেইনার */
         .card-container {
             display: flex;
             flex-direction: row;
@@ -501,6 +497,7 @@
             text-decoration: none;
             transition: background 0.3s ease;
             margin-top: 15px;
+            cursor: pointer;
         }
 
         .offer-order-btn:hover {
@@ -650,9 +647,9 @@
                   <div class="bar-bg"><div class="bar-fill"></div></div>
                 </div>
 
-                <a href="#order-section" class="btn-order-action">
+                <button type="button" onclick="scrollToOrder()" class="btn-order-action">
                     <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
-                </a>
+                </button>
                 <p class="sub-features">সহজ অর্ডার | সুরক্ষিত প্যাকেজিং | হাতে পেয়ে পেমেন্ট</p>
 
                 <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
@@ -668,9 +665,9 @@
                     প্রতিদিনের ব্যস্ত জীবনে বয়সের ছাপ, ত্বকের উজ্জ্বলতা কমে যাওয়া, চুল ও নখের দুর্বলতা কিংবা জয়েন্টে অস্বস্তি — এসব সমস্যার যত্নে হতে পারে Marine Collagen আপনার দৈনন্দিন সঙ্গী।
                 </p>
 
-                <a href="#order-section" class="btn-order-action">
+                <button type="button" onclick="scrollToOrder()" class="btn-order-action">
                     <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
-                </a>
+                </button>
             </div>
         </div>
 
@@ -724,9 +721,9 @@
           </div>
         </div>
 
-        <a href="#order-section" class="btn-order-action" style="margin-top: 25px;">
+        <button type="button" onclick="scrollToOrder()" class="btn-order-action" style="margin-top: 25px;">
             <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
-        </a>
+        </button>
 
         <!-- প্রশ্নোত্তর সেকশন (FAQ) -->
         <div class="faq-section" id="faq-section">
@@ -755,9 +752,9 @@
                 <div class="current-price">1250 টাকা</div>
                 <div class="old-price">2500 টাকা</div>
                 <div class="save-badge">সাশ্রয় 1250</div>
-                <a href="#order-section" class="offer-order-btn">
+                <button type="button" onclick="scrollToOrder()" class="offer-order-btn" style="width: 100%; border: none;">
                     <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
-                </a>
+                </button>
             </div>
         </div>
 
@@ -923,12 +920,11 @@
           </div>
           <div class="flex justify-between border-t pt-2">
             <span class="text-gray-500">মোট মূল্য:</span>
-            <strong id="recTotalAmount" class="text-emerald-700 font-bold">৳ 1,150.00</strong>
+            <strong id="recTotalAmount" class="text-emerald-700 font-bold">৳ 1,250.00</strong>
           </div>
         </div>
 
         <div class="flex flex-col gap-2">
-          <!-- নতুন হোয়াটসঅ্যাপ বাটন (স্ক্রিনশট বা মেসেজ পাঠানোর জন্য) -->
           <a id="whatsappShareBtn" href="#" target="_blank" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold py-2.5 rounded-lg text-sm text-center flex items-center justify-center gap-2">
             <i class="fa-brands fa-whatsapp text-lg"></i> হোয়াটসঅ্যাপে স্ক্রিনশট / অর্ডার পাঠান
           </a>
@@ -944,11 +940,18 @@
       </div>
     </div>
 
-<!-- JavaScript লজিক -->
+    <!-- JavaScript লজিক -->
     <script>
       var basePrice = 1250.00;
       var currentQty = 1;
-      var hasOrderedThisSession = false; // ডাবল অর্ডার বা পিক্সেল ফায়ার রোধ করার জন্য ফ্ল্যাগ
+      var isSubmitting = false; // একাধিক ক্লিকের মাধ্যমে ডাবল অর্ডার ট্র্যাকিং রোধ করতে
+
+      function scrollToOrder() {
+        var orderSec = document.getElementById("order-section");
+        if(orderSec) {
+          orderSec.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
 
       function updateQty(change) {
         currentQty += change;
@@ -967,29 +970,29 @@
       function handleFormSubmit(event) {
         event.preventDefault();
 
-        // যদি এই সেশনে ইতিমধ্যে অর্ডার সাবমিট হয়ে থাকে তবে ডাবল কাউন্ট বা ফায়ার হবে না
-        if (hasOrderedThisSession) {
-          alert('আপনার অর্ডারটি ইতিমধ্যে গ্রহণ করা হয়েছে!');
+        // সাবমিট চালু থাকলে আবার ক্লিক আটকাতে রিটার্ন
+        if (isSubmitting) return;
+
+        var name = document.getElementById("name").value.trim();
+        var phone = document.getElementById("phone").value.trim();
+        var address = document.getElementById("address").value.trim();
+        var notes = document.getElementById("notes").value.trim();
+        var totalAmount = basePrice * currentQty;
+
+        if (!name || !phone || !address) {
+          alert('অনুগ্রহ করে প্রয়োজনীয় তথ্যগুলো পূরণ করুন।');
           return;
         }
 
-        var name = document.getElementById("name").value;
-        var phone = document.getElementById("phone").value;
-        var address = document.getElementById("address").value;
-        var notes = document.getElementById("notes").value;
-        var totalAmount = basePrice * currentQty;
-
+        isSubmitting = true;
         var submitBtn = document.getElementById("submitBtn");
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
 
-        // ফ্ল্যাগ ট্রু করে দেওয়া হলো যাতে অতিরিক্ত কোনো ক্লিক বা ডাবল কাউন্ট না হয়
-        hasOrderedThisSession = true;
+        // প্রতিটি পারচেস অর্ডারের জন্য একটিমাত্র ইউনিক Event ID
+        var purchaseEventId = 'purch_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
-        // প্রতিটি পারচেস অর্ডারের জন্য সম্পূর্ণ নতুন ও ইউনিক Event ID তৈরি করা হলো (ডাবল কাউন্ট রোধ করতে)
-        var purchaseEventId = 'purchase_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
-
-        // ১. ব্রাউজার পিক্সেল পারচেস ফায়ার
+        // ১. ব্রাউজার পিক্সেল পারচেস ফায়ার (একই event_id সহ)
         if (typeof fbq === "function") {
           fbq("track", "Purchase", {
             value: totalAmount,
@@ -997,12 +1000,10 @@
           }, {event_id: purchaseEventId});
         }
 
-        // ২. ক্লাউডফ্লেয়ার ওয়ার্কারের মাধ্যমে সার্ভার সাইডে (CAPI) পারচেস পাঠানো
+        // ২. CAPI তে পারচেস পাঠানো (একই event_id ও ইউজার ডাটা সহ)
         fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             event_name: "Purchase",
             event_id: purchaseEventId,
@@ -1011,8 +1012,9 @@
             phone: phone,
             name: name
           })
-        }).catch(err => console.log("CAPI Purchase Error", err));
+        }).catch(function(err){ console.error("CAPI Purchase Error", err); });
 
+        // ৩. গুগল শিটে ডাটা পাঠানো
         var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
         var formData = new URLSearchParams();
         formData.append("entry.820594857", name);
@@ -1020,18 +1022,18 @@
         formData.append("entry.1521714117", address);
         formData.append("entry.880453828", notes);
 
-        // গুগল শিটে ডাটা পাঠানো
         fetch(formUrl, {
           method: "POST",
           mode: "no-cors",
           body: formData
         }).catch(function(err){
-          console.log("Form submit error", err);
+          console.error("Form submit error", err);
         });
 
         setTimeout(function() {
           showSuccessMessage(name, phone, address, totalAmount);
           submitBtn.disabled = false;
+          isSubmitting = false;
         }, 1250);
       }
 
@@ -1050,7 +1052,7 @@
         var dateStr = today.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
         document.getElementById("orderDate").innerText = dateStr;
 
-        // হোয়াটসঅ্যাপ শেয়ার লিংক তৈরি (নম্বর: 01868483379)
+        // হোয়াটসঅ্যাপ লিংক
         var whatsappText = `হ্যালো, আমি একটি নতুন অর্ডার করেছি।%0aঅর্ডার আইডি: %23${randomId}%0aনাম: ${encodeURIComponent(name)}%0aফোন: ${phone}%0aঠিকানা: ${encodeURIComponent(address)}%0aমোট মূল্য: ${totalAmountStr}`;
         var whatsappUrl = `https://wa.me/8801868483379?text=${whatsappText}`;
         document.getElementById("whatsappShareBtn").setAttribute("href", whatsappUrl);
@@ -1101,7 +1103,7 @@
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QxcxomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtXZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
-        ].forEach(imgSrc => {
+        ].forEach(function(imgSrc) {
             var rvTrack = document.getElementById("rv");
             if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
         });
