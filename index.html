@@ -915,168 +915,168 @@
       var isSubmitting = false;
 
       function scrollToOrder() {
-        var orderSec = document.getElementById("order-section");
-        if(orderSec) {
-          orderSec.scrollIntoView({ behavior: 'smooth' });
-        }
+      var orderSec = document.getElementById("order-section");
+      if(orderSec) {
+        orderSec.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function scrollRv(direction) {
+      var rvTrack = document.getElementById("rv");
+      if(rvTrack) {
+        rvTrack.scrollBy({ left: direction * rvTrack.clientWidth, behavior: 'smooth' });
+      }
+    }
+
+    function updateQty(change) {
+      currentQty += change;
+      if (currentQty < 1) currentQty = 1;
+
+      var totalPrice = basePrice * currentQty;
+      var formattedPrice = '৳ ' + totalPrice.toLocaleString('en-US') + '.00';
+
+      document.getElementById('qtyDisplay').innerText = currentQty;
+      document.getElementById('summaryQty').innerText = currentQty;
+      document.getElementById('summarySubtotal').innerText = formattedPrice;
+      document.getElementById('summaryTotal').innerText = formattedPrice;
+      document.getElementById('btnPrice').innerText = formattedPrice;
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      var submitBtn = document.getElementById("submitBtn");
+      if (isSubmitting || submitBtn.disabled) return;
+
+      var name = document.getElementById("name").value.trim();
+      var phone = document.getElementById("phone").value.trim();
+      var address = document.getElementById("address").value.trim();
+      var notes = document.getElementById("notes").value.trim();
+      var totalAmount = basePrice * currentQty;
+
+      if (!name || !phone || !address) {
+        alert('অনুগ্রহ করে প্রয়োজনীয় তথ্যগুলো পূরণ করুন।');
+        return;
       }
 
-      function scrollRv(direction) {
-        var rvTrack = document.getElementById("rv");
-        if(rvTrack) {
-          rvTrack.scrollBy({ left: direction * rvTrack.clientWidth, behavior: 'smooth' });
-        }
+      isSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
+
+      var purchaseEventId = 'purch_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
+      if (typeof fbq === "function") {
+        fbq("track", "Purchase", {
+          value: totalAmount,
+          currency: "BDT"
+        }, { event_id: purchaseEventId });
       }
 
-      function updateQty(change) {
-        currentQty += change;
-        if (currentQty < 1) currentQty = 1;
+      fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          event_name: "Purchase",
+          event_id: purchaseEventId,
+          value: totalAmount,
+          currency: "BDT",
+          phone: phone,
+          name: name
+        })
+      }).catch(function(err){ console.error("CAPI Purchase Error", err); });
 
-        var totalPrice = basePrice * currentQty;
-        var formattedPrice = '৳ ' + totalPrice.toLocaleString('en-US') + '.00';
+      var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
+      var formData = new URLSearchParams();
+      formData.append("entry.820594857", name);
+      formData.append("entry.1363179355", phone);
+      formData.append("entry.1521714117", address);
+      formData.append("entry.880453828", notes);
 
-        document.getElementById('qtyDisplay').innerText = currentQty;
-        document.getElementById('summaryQty').innerText = currentQty;
-        document.getElementById('summarySubtotal').innerText = formattedPrice;
-        document.getElementById('summaryTotal').innerText = formattedPrice;
-        document.getElementById('btnPrice').innerText = formattedPrice;
-      }
+      fetch(formUrl, {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      }).catch(function(err){
+        console.error("Form submit error", err);
+      });
 
-      function handleFormSubmit(event) {
-        event.preventDefault();
+      setTimeout(function() {
+        showSuccessMessage(name, phone, address, totalAmount);
+        submitBtn.disabled = false;
+        isSubmitting = false;
+      }, 1250);
+    }
 
-        if (isSubmitting) return;
+    function showSuccessMessage(name, phone, address, totalAmountNum) {
+      var totalAmountStr = '৳ ' + totalAmountNum.toLocaleString('en-US') + '.00';
 
-        var name = document.getElementById("name").value.trim();
-        var phone = document.getElementById("phone").value.trim();
-        var address = document.getElementById("address").value.trim();
-        var notes = document.getElementById("notes").value.trim();
-        var totalAmount = basePrice * currentQty;
+      document.getElementById("recName").innerText = name;
+      document.getElementById("recPhone").innerText = phone;
+      document.getElementById("recAddress").innerText = address;
+      document.getElementById("recTotalAmount").innerText = totalAmountStr;
 
-        if (!name || !phone || !address) {
-          alert('অনুগ্রহ করে প্রয়োজনীয় তথ্যগুলো পূরণ করুন।');
-          return;
-        }
+      var randomId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+      document.getElementById("recOrderId").innerText = '#' + randomId;
+      
+      var today = new Date();
+      var dateStr = today.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
+      document.getElementById("orderDate").innerText = dateStr;
 
-        isSubmitting = true;
-        var submitBtn = document.getElementById("submitBtn");
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
+      var whatsappText = `হ্যালো, আমি একটি নতুন অর্ডার করেছি।%0aঅর্ডার আইডি: %23${randomId}%0aনাম: ${encodeURIComponent(name)}%0aফোন: ${phone}%0aঠিকানা: ${encodeURIComponent(address)}%0aমোট মূল্য: ${totalAmountStr}`;
+      var whatsappUrl = `https://wa.me/8801868483379?text=${whatsappText}`;
+      document.getElementById("whatsappShareBtn").setAttribute("href", whatsappUrl);
 
-        var purchaseEventId = 'purch_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+      document.getElementById("receiptModal").classList.remove("hidden");
+      document.getElementById("receiptModal").classList.add("flex");
 
-        if (typeof fbq === "function") {
-          fbq("track", "Purchase", {
-            value: totalAmount,
-            currency: "BDT"
-          }, { event_id: purchaseEventId });
-        }
+      document.getElementById("customOrderForm").reset();
+      currentQty = 1;
+      updateQty(0);
+    }
 
-        fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            event_name: "Purchase",
-            event_id: purchaseEventId,
-            value: totalAmount,
-            currency: "BDT",
-            phone: phone,
-            name: name
-          })
-        }).catch(function(err){ console.error("CAPI Purchase Error", err); });
+    function closeReceiptModal() {
+      document.getElementById("receiptModal").classList.add("hidden");
+      document.getElementById("receiptModal").classList.remove("flex");
+      var formattedPrice = '৳ ' + (basePrice * currentQty).toLocaleString('en-US') + '.00';
+      document.getElementById("submitBtn").innerHTML = '<i class="fa-solid fa-lock"></i> <span>অর্ডার কনফার্ম করুন <span id="btnPrice">' + formattedPrice + '</span></span>';
+    }
 
-        var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
-        var formData = new URLSearchParams();
-        formData.append("entry.820594857", name);
-        formData.append("entry.1363179355", phone);
-        formData.append("entry.1521714117", address);
-        formData.append("entry.880453828", notes);
+    function startTimer(duration, h, m, s) {
+      var timer = duration, hours, minutes, seconds;
+      setInterval(function () {
+        hours = parseInt(timer / 3600, 10);
+        minutes = parseInt((timer % 3600) / 60, 10);
+        seconds = parseInt(timer % 60, 10);
 
-        fetch(formUrl, {
-          method: "POST",
-          mode: "no-cors",
-          body: formData
-        }).catch(function(err){
-          console.error("Form submit error", err);
-        });
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        setTimeout(function() {
-          showSuccessMessage(name, phone, address, totalAmount);
-          submitBtn.disabled = false;
-          isSubmitting = false;
-        }, 1250);
-      }
+        if(h) h.textContent = hours;
+        if(m) m.textContent = minutes;
+        if(s) s.textContent = seconds;
 
-      function showSuccessMessage(name, phone, address, totalAmountNum) {
-        var totalAmountStr = '৳ ' + totalAmountNum.toLocaleString('en-US') + '.00';
+        if (--timer < 0) { timer = duration; }
+      }, 1000);
+    }
 
-        document.getElementById("recName").innerText = name;
-        document.getElementById("recPhone").innerText = phone;
-        document.getElementById("recAddress").innerText = address;
-        document.getElementById("recTotalAmount").innerText = totalAmountStr;
+    window.onload = function () {
+      var sixHours = 60 * 60 * 6,
+          h = document.querySelector('#hours'),
+          m = document.querySelector('#minutes'),
+          s = document.querySelector('#seconds');
+      if(h && m && s) startTimer(sixHours, h, m, s);
 
-        var randomId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById("recOrderId").innerText = '#' + randomId;
-        
-        var today = new Date();
-        var dateStr = today.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
-        document.getElementById("orderDate").innerText = dateStr;
-
-        var whatsappText = `হ্যালো, আমি একটি নতুন অর্ডার করেছি।%0aঅর্ডার আইডি: %23${randomId}%0aনাম: ${encodeURIComponent(name)}%0aফোন: ${phone}%0aঠিকানা: ${encodeURIComponent(address)}%0aমোট মূল্য: ${totalAmountStr}`;
-        var whatsappUrl = `https://wa.me/8801868483379?text=${whatsappText}`;
-        document.getElementById("whatsappShareBtn").setAttribute("href", whatsappUrl);
-
-        document.getElementById("receiptModal").classList.remove("hidden");
-        document.getElementById("receiptModal").classList.add("flex");
-
-        document.getElementById("customOrderForm").reset();
-        currentQty = 1;
-        updateQty(0);
-      }
-
-      function closeReceiptModal() {
-        document.getElementById("receiptModal").classList.add("hidden");
-        document.getElementById("receiptModal").classList.remove("flex");
-        var formattedPrice = '৳ ' + (basePrice * currentQty).toLocaleString('en-US') + '.00';
-        document.getElementById("submitBtn").innerHTML = '<i class="fa-solid fa-lock"></i> <span>অর্ডার কনফার্ম করুন <span id="btnPrice">' + formattedPrice + '</span></span>';
-      }
-
-      function startTimer(duration, h, m, s) {
-        var timer = duration, hours, minutes, seconds;
-        setInterval(function () {
-          hours = parseInt(timer / 3600, 10);
-          minutes = parseInt((timer % 3600) / 60, 10);
-          seconds = parseInt(timer % 60, 10);
-
-          hours = hours < 10 ? "0" + hours : hours;
-          minutes = minutes < 10 ? "0" + minutes : minutes;
-          seconds = seconds < 10 ? "0" + seconds : seconds;
-
-          if(h) h.textContent = hours;
-          if(m) m.textContent = minutes;
-          if(s) s.textContent = seconds;
-
-          if (--timer < 0) { timer = duration; }
-        }, 1000);
-      }
-
-      window.onload = function () {
-        var sixHours = 60 * 60 * 6,
-            h = document.querySelector('#hours'),
-            m = document.querySelector('#minutes'),
-            s = document.querySelector('#seconds');
-        if(h && m && s) startTimer(sixHours, h, m, s);
-
-        [
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcvBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LuThHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
-        ].forEach(function(imgSrc) {
-            var rvTrack = document.getElementById("rv");
-            if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
-        });
-      };
-    </script>
+      [
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcvBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LuThHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
+      ].forEach(function(imgSrc) {
+          var rvTrack = document.getElementById("rv");
+          if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
+      });
+    };
+  </script>
 </body>
 </html>
