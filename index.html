@@ -15,7 +15,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-   <!-- Meta Pixel Code -->
+  <!-- Meta Pixel Code -->
     <script>
       !function(f,b,e,v,n,t,s)
       {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -26,11 +26,8 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       
-      // অটোমেটিক ইভেন্ট ট্র্যাকিং, সাবস্ক্রাইব বাটন এবং অটো-কনফিগারেশন বন্ধ করা
       fbq('set', 'autoConfig', false, '934429269550436');
       fbq('init', '934429269550436'); 
-
-      // অতিরিক্ত বাটন অটো-ডিটেকশন ও সাবস্ক্রাইব বাটন লগ বন্ধ করার কোড
       fbq('set', 'agent', 'tmgoogletagmanager', '934429269550436');
            
       var pageEventId = 'pageEvent_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
@@ -43,7 +40,7 @@
       }).catch(function(err){ console.error('CAPI PageView Error:', err); });
     </script>
     <!-- End Meta Pixel Code -->
-
+    
     <style>
         :root {
             --primary-color: #e63946;
