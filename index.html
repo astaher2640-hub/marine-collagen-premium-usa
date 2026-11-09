@@ -30,14 +30,45 @@
       fbq('init', '934429269550436'); 
       fbq('set', 'agent', 'tmgoogletagmanager', '934429269550436');
            
+      /* ---------- Conversions API helper (browser -> Cloudflare Worker) ---------- */
+      var CAPI_URL = 'https://marinecollagenpremium.as-taher2640.workers.dev/';
+
+      function getCookie(name) {
+        var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+        return m ? decodeURIComponent(m[1]) : '';
+      }
+
+      function getFbc() {
+        var c = getCookie('_fbc');
+        if (c) return c;
+        try {
+          var id = new URLSearchParams(location.search).get('fbclid');
+          if (id) return 'fb.1.' + Date.now() + '.' + id;
+        } catch (e) {}
+        return '';
+      }
+
+      function sendCapi(payload) {
+        payload.event_source_url = location.href;
+        payload.event_time = Math.floor(Date.now() / 1000);
+        payload.fbp = getCookie('_fbp');
+        payload.fbc = getFbc();
+        return fetch(CAPI_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(function (err) { console.error('CAPI Error:', payload.event_name, err); });
+      }
+
+      /* PageView: একই event_id ব্রাউজার পিক্সেল ও সার্ভার (CAPI) দুই জায়গায় যায় */
       var pageEventId = 'pageEvent_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
       fbq('track', 'PageView', {}, {event_id: pageEventId});
 
-      fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_name: 'PageView', event_id: pageEventId })
-      }).catch(function(err){ console.error('CAPI PageView Error:', err); });
+      /* ১ সেকেন্ড পরে পাঠানো হয় যেন পিক্সেল _fbp কুকি তৈরি করে ফেলতে পারে */
+      setTimeout(function () {
+        sendCapi({ event_name: 'PageView', event_id: pageEventId });
+      }, 1000);
     </script>
     <!-- End Meta Pixel Code -->
 
@@ -939,11 +970,24 @@
       document.getElementById('summaryQty').innerText = currentQty;
       document.getElementById('summarySubtotal').innerText = formattedPrice;
       document.getElementById('summaryTotal').innerText = formattedPrice;
-      document.getElementById('btnPrice').innerText = formattedPrice;
+      var btnPriceEl = document.getElementById('btnPrice');
+      if (btnPriceEl) btnPriceEl.innerText = formattedPrice;
+    }
+
+    function resetSubmitButton() {
+      var btn = document.getElementById("submitBtn");
+      if (!btn) return;
+      var formattedPrice = '৳ ' + (basePrice * currentQty).toLocaleString('en-US') + '.00';
+      btn.innerHTML = '<i class="fa-solid fa-lock"></i> <span>অর্ডার কনফার্ম করুন <span id="btnPrice">' + formattedPrice + '</span></span>';
+      btn.disabled = false;
     }
 
     function handleFormSubmit(event) {
       event.preventDefault();
+
+      /* শুধুমাত্র আসল "অর্ডার কনফার্ম করুন" সাবমিট বাটন (বা কিবোর্ড Enter) থেকেই অর্ডার/Purchase গণনা হবে */
+      if (event.isTrusted === false) return;
+      if (event.submitter && event.submitter.id !== "submitBtn") return;
 
       var submitBtn = document.getElementById("submitBtn");
       if (isSubmitting || submitBtn.disabled) return;
@@ -965,25 +1009,23 @@
 
       var purchaseEventId = 'purch_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
-      if (typeof fbq === "function") {
-        fbq("track", "Purchase", {
-          value: totalAmount,
-          currency: "BDT"
-        }, { event_id: purchaseEventId });
-      }
+      try {
+        if (typeof fbq === "function") {
+          fbq("track", "Purchase", {
+            value: totalAmount,
+            currency: "BDT"
+          }, { event_id: purchaseEventId });
+        }
+      } catch (e) { console.error("Pixel Purchase Error", e); }
 
-      fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event_name: "Purchase",
-          event_id: purchaseEventId,
-          value: totalAmount,
-          currency: "BDT",
-          phone: phone,
-          name: name
-        })
-      }).catch(function(err){ console.error("CAPI Purchase Error", err); });
+      sendCapi({
+        event_name: "Purchase",
+        event_id: purchaseEventId,
+        value: totalAmount,
+        currency: "BDT",
+        phone: phone,
+        name: name
+      });
 
       var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
       var formData = new URLSearchParams();
@@ -1001,9 +1043,14 @@
       });
 
       setTimeout(function() {
-        showSuccessMessage(name, phone, address, totalAmount);
-        submitBtn.disabled = false;
-        isSubmitting = false;
+        try {
+          showSuccessMessage(name, phone, address, totalAmount);
+        } catch (err) {
+          console.error("Receipt error", err);
+        } finally {
+          resetSubmitButton();
+          isSubmitting = false;
+        }
       }, 1250);
     }
 
@@ -1037,8 +1084,7 @@
     function closeReceiptModal() {
       document.getElementById("receiptModal").classList.add("hidden");
       document.getElementById("receiptModal").classList.remove("flex");
-      var formattedPrice = '৳ ' + (basePrice * currentQty).toLocaleString('en-US') + '.00';
-      document.getElementById("submitBtn").innerHTML = '<i class="fa-solid fa-lock"></i> <span>অর্ডার কনফার্ম করুন <span id="btnPrice">' + formattedPrice + '</span></span>';
+      resetSubmitButton();
     }
 
     function startTimer(duration, h, m, s) {
