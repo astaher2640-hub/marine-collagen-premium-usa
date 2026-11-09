@@ -26,7 +26,6 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       
-      // অটোমেটিক ইভেন্ট ট্র্যাকিং এবং সাবস্ক্রাইব বাটন ক্রিয়েশন নিষ্ক্রিয় করা
       fbq('set', 'autoConfig', false, '934429269550436');
       fbq('init', '934429269550436'); 
            
@@ -770,9 +769,9 @@
         <section class="rv">
           <h2>আমাদের সম্মানিত কাস্টমারের কথা</h2>
           <div class="rv-wrap">
-            <button onclick="rv.scrollBy(-rv.clientWidth,0)">‹</button>
+            <button type="button" onclick="scrollRv(-1)">‹</button>
             <div class="rv-track" id="rv"></div>
-            <button onclick="rv.scrollBy(rv.clientWidth,0)">›</button>
+            <button type="button" onclick="scrollRv(1)">›</button>
           </div>
         </section>
 
@@ -857,7 +856,7 @@
     </div>
 
     <div id="receiptModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-slate-800 text-left">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-slate-800 text-left" onclick="event.stopPropagation()">
         <div class="text-center mb-4">
           <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl mb-2">
             <i class="fa-solid fa-circle-check"></i>
@@ -894,14 +893,14 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <a id="whatsappShareBtn" href="#" target="_blank" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold py-2.5 rounded-lg text-sm text-center flex items-center justify-center gap-2">
+          <a id="whatsappShareBtn" href="#" target="_blank" type="button" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-semibold py-2.5 rounded-lg text-sm text-center flex items-center justify-center gap-2">
             <i class="fa-brands fa-whatsapp text-lg"></i> হোয়াটসঅ্যাপে স্ক্রিনশট / অর্ডার পাঠান
           </a>
           <div class="flex gap-2">
-            <button onclick="window.print()" class="flex-1 bg-slate-800 text-white font-semibold py-2.5 rounded-lg text-sm hover:bg-slate-900">
+            <button type="button" onclick="window.print()" class="flex-1 bg-slate-800 text-white font-semibold py-2.5 rounded-lg text-sm hover:bg-slate-900">
               <i class="fa-solid fa-print mr-1"></i> প্রিন্ট / সেভ
             </button>
-            <button onclick="closeReceiptModal()" class="flex-1 bg-gray-200 text-gray-800 font-semibold py-2.5 rounded-lg text-sm hover:bg-gray-300">
+            <button type="button" onclick="closeReceiptModal()" class="flex-1 bg-gray-200 text-gray-800 font-semibold py-2.5 rounded-lg text-sm hover:bg-gray-300">
               বন্ধ করুন
             </button>
           </div>
@@ -918,6 +917,13 @@
         var orderSec = document.getElementById("order-section");
         if(orderSec) {
           orderSec.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+
+      function scrollRv(direction) {
+        var rvTrack = document.getElementById("rv");
+        if(rvTrack) {
+          rvTrack.scrollBy({ left: direction * rvTrack.clientWidth, behavior: 'smooth' });
         }
       }
 
@@ -962,7 +968,7 @@
           fbq("track", "Purchase", {
             value: totalAmount,
             currency: "BDT"
-          }, {event_id: purchaseEventId});
+          }, { event_id: purchaseEventId });
         }
 
         fetch('https://marinecollagenpremium.as-taher2640.workers.dev/', {
@@ -1063,7 +1069,7 @@
         [
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
-          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WFHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcvBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
           "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgzFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
         ].forEach(function(imgSrc) {
             var rvTrack = document.getElementById("rv");
