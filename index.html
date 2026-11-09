@@ -822,20 +822,21 @@
             </div>
         </div>
 
-        <div class="offer-card-container">
-            <div class="offer-card">
-                <div class="offer-top-badge">ফুল কোর্স - মোট ৩ কৌটা <br> ১৮০ পিস ক্যাপসুল - ৩ মাস</div>
-                <div class="offer-image-box">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgZE0WSSuKmliVQ2n0IrF7KkmqlOs3x6suFVSQr9NdXzYzB2Vq8SN8T8x2H8WroL8lUjxN-qmZnDX5lf4UozPxaEhuIu9WRIAbfj64xsThXA7F6bBOHbSWeEoJ3h4TP2vEOWGVQkhcx-LGtNsArr2gZXUDMYcpDD4Ox3QThQrinkgJONMdZW5uY-9DVU_s/w380-h640/HMM.jpg" alt="Marine Collagen">
-                </div>
-                <div class="current-price">1250 টাকা</div>
-                <div class="old-price">2500 টাকা</div>
-                <div class="save-badge">সাশ্রয় 1250</div>
-                <button type="button" onclick="scrollToOrder()" class="offer-order-btn">
-                    <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
-                </button>
-            </div>
+       <div class="offer-card-container">
+    <div class="offer-card">
+        <div class="offer-top-badge">ফুল কোর্স - মোট ৩ কৌটা <br> ১৮০ পিস ক্যাপসুল - ৩ মাস</div>
+        <div class="offer-image-box">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgZE0WSSuKmliVQ2n0IrF7KkmqlOs3x6suFVSQr9NdXzYzB2Vq8SN8T8x2H8WroL8lUjxN-qmZnDX5lf4UozPxaEhuIu9WRIAbfj64xsThXA7F6bBOHbSWeEoJ3h4TP2vEOWGVQkhcx-LGtNsArr2gZXUDMYcpDD4Ox3QThQrinkgJONMdZW5uY-9DVU_s/w380-h640/HMM.jpg" alt="Marine Collagen">
         </div>
+        <div class="current-price">1250 টাকা</div>
+        <div class="old-price">2500 টাকা</div>
+        <div class="save-badge">সাশ্রয় 1250</div>
+        <!-- এখানে বাটনটিতে কোনো ট্র্যাকিং কোড বা পিক্সেল ইভেন্ট রাখা হয়নি -->
+        <button type="button" onclick="scrollToOrder()" class="offer-order-btn">
+            <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
+        </button>
+    </div>
+</div>
 
         <section class="why-section">
           <h2 class="why-title">আপনি আমাদের থেকে কেন কিনবেন</h2>
@@ -1197,5 +1198,23 @@
       });
     };
   </script>
+<!-- আপনার ওয়েবসাইটের বাকি সব ডিজাইন ও কন্টেন্ট এখানে থাকবে -->
+    <div class="offer-card-container">
+        <!-- আপনার অফার কার্ডের কোড -->
+    </div>
+
+    <!-- এই জায়গায় স্ক্রিপ্টটি বসাতে হবে -->
+    <script>
+        function scrollToOrder() {
+            // এখানে 'order-form' এর জায়গায় আপনার অর্ডার সেকশনের আসল ID বা Class বসাবেন
+            const orderSection = document.getElementById('order-section'); 
+            
+            if (orderSection) {
+                orderSection.scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }
+        }
+    </script>
 </body>
 </html>
