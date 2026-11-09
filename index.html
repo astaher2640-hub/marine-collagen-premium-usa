@@ -17,9 +17,8 @@
 
     <!-- Meta Pixel Code -->
     <script>
-      /* ---------- Pixel Guard: পিক্সেলের নিজস্ব অটো ইভেন্ট (ob3_ / SubscribedButtonClick / Microdata)
-         এবং আমাদের কোডের বাইরের ডুপ্লিকেট Purchase/PageView ফেসবুকে যাওয়ার আগেই আটকায়।
-         এটি পিক্সেল লোডের আগে থাকতে হবে। কিছু বুঝতে না পারলে ইভেন্ট আটকায় না (fail-open)। ---------- */
+      /* ---------- Pixel Guard: পিক্সেলের নিজস্ব অটো ইভেন্ট, SubscribedButtonClick, Microdata 
+         এবং যেকোনো ফালতু ক্লিক ইভেন্ট ফেসবুকে যাওয়ার আগেই আটকাবে ---------- */
       (function () {
         function shouldBlock(url, body) {
           try {
@@ -45,7 +44,7 @@
             eid = String(eid);
             var block = false;
             if (eid.indexOf('ob3_') === 0) block = true;
-            else if (ev === 'SubscribedButtonClick' || ev === 'Microdata') block = true;
+            else if (ev === 'SubscribedButtonClick' || ev === 'Microdata' || ev === 'Click' || ev === 'Lead') block = true;
             else if (eid && ev === 'PageView' && eid.indexOf('pageEvent_') !== 0) block = true;
             else if (eid && ev === 'Purchase' && eid.indexOf('purch_') !== 0) block = true;
             if (block) console.info('[pixel-guard] blocked:', ev, eid);
@@ -138,7 +137,6 @@
       var pageEventId = 'pageEvent_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
       fbq('track', 'PageView', {}, {event_id: pageEventId});
 
-      /* ১ সেকেন্ড পরে পাঠানো হয় যেন পিক্সেল _fbp কুকি তৈরি করে ফেলতে পারে */
       setTimeout(function () {
         sendCapi({ event_name: 'PageView', event_id: pageEventId });
       }, 1000);
@@ -673,8 +671,7 @@
             <a href="#product-section">প্রডাক্ট</a>
             <a href="#offer-section">অফার</a>
             <a href="#faq-section">প্রশ্নোত্তর</a>
-           <button type="button" onclick="scrollToOrderSection()" style="font-size: 20px; color: var(--primary-color); background: none; border: none; cursor: pointer; padding: 0;">
-    অর্ডার</button>        
+            <button type="button" onclick="scrollToOrder()" style="font-size: 20px; color: var(--primary-color); background: none; border: none; cursor: pointer; padding: 0;">অর্ডার</button>        
         </div>
     </div>
 
@@ -823,21 +820,20 @@
             </div>
         </div>
 
-       <div class="offer-card-container">
-    <div class="offer-card">
-        <div class="offer-top-badge">ফুল কোর্স - মোট ৩ কৌটা <br> ১৮০ পিস ক্যাপসুল - ৩ মাস</div>
-        <div class="offer-image-box">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgZE0WSSuKmliVQ2n0IrF7KkmqlOs3x6suFVSQr9NdXzYzB2Vq8SN8T8x2H8WroL8lUjxN-qmZnDX5lf4UozPxaEhuIu9WRIAbfj64xsThXA7F6bBOHbSWeEoJ3h4TP2vEOWGVQkhcx-LGtNsArr2gZXUDMYcpDD4Ox3QThQrinkgJONMdZW5uY-9DVU_s/w380-h640/HMM.jpg" alt="Marine Collagen">
+        <div class="offer-card-container">
+            <div class="offer-card">
+                <div class="offer-top-badge">ফুল কোর্স - মোট ৩ কৌটা <br> ১৮০ পিস ক্যাপসুল - ৩ মাস</div>
+                <div class="offer-image-box">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgZE0WSSuKmliVQ2n0IrF7KkmqlOs3x6suFVSQr9NdXzYzB2Vq8SN8T8x2H8WroL8lUjxN-qmZnDX5lf4UozPxaEhuIu9WRIAbfj64xsThXA7F6bBOHbSWeEoJ3h4TP2vEOWGVQkhcx-LGtNsArr2gZXUDMYcpDD4Ox3QThQrinkgJONMdZW5uY-9DVU_s/w380-h640/HMM.jpg" alt="Marine Collagen">
+                </div>
+                <div class="current-price">1250 টাকা</div>
+                <div class="old-price">2500 টাকা</div>
+                <div class="save-badge">সাশ্রয় 1250</div>
+                <button type="button" onclick="scrollToOrder()" class="offer-order-btn">
+                    <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
+                </button>
+            </div>
         </div>
-        <div class="current-price">1250 টাকা</div>
-        <div class="old-price">2500 টাকা</div>
-        <div class="save-badge">সাশ্রয় 1250</div>
-        <!-- এখানে বাটনটিতে কোনো ট্র্যাকিং কোড বা পিক্সেল ইভেন্ট রাখা হয়নি -->
-        <button type="button" onclick="scrollToOrder()" class="offer-order-btn">
-            <i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে চাই
-        </button>
-    </div>
-</div>
 
         <section class="why-section">
           <h2 class="why-title">আপনি আমাদের থেকে কেন কিনবেন</h2>
@@ -1021,211 +1017,183 @@
       var isSubmitting = false;
 
       function scrollToOrder() {
-      var orderSec = document.getElementById("order-section");
-      if(orderSec) {
-        orderSec.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-
-    function scrollRv(direction) {
-      var rvTrack = document.getElementById("rv");
-      if(rvTrack) {
-        rvTrack.scrollBy({ left: direction * rvTrack.clientWidth, behavior: 'smooth' });
-      }
-    }
-
-    function updateQty(change) {
-      currentQty += change;
-      if (currentQty < 1) currentQty = 1;
-
-      var totalPrice = basePrice * currentQty;
-      var formattedPrice = '৳ ' + totalPrice.toLocaleString('en-US') + '.00';
-
-      document.getElementById('qtyDisplay').innerText = currentQty;
-      document.getElementById('summaryQty').innerText = currentQty;
-      document.getElementById('summarySubtotal').innerText = formattedPrice;
-      document.getElementById('summaryTotal').innerText = formattedPrice;
-      var btnPriceEl = document.getElementById('btnPrice');
-      if (btnPriceEl) btnPriceEl.innerText = formattedPrice;
-    }
-
-    function resetSubmitButton() {
-      var btn = document.getElementById("submitBtn");
-      if (!btn) return;
-      var formattedPrice = '৳ ' + (basePrice * currentQty).toLocaleString('en-US') + '.00';
-      btn.innerHTML = '<i class="fa-solid fa-lock"></i> <span>অর্ডার কনফার্ম করুন <span id="btnPrice">' + formattedPrice + '</span></span>';
-      btn.disabled = false;
-    }
-
-    function handleFormSubmit(event) {
-      event.preventDefault();
-
-      /* শুধুমাত্র আসল "অর্ডার কনফার্ম করুন" সাবমিট বাটন (বা কিবোর্ড Enter) থেকেই অর্ডার/Purchase গণনা হবে */
-      if (event.isTrusted === false) return;
-      if (event.submitter && event.submitter.id !== "submitBtn") return;
-
-      var submitBtn = document.getElementById("submitBtn");
-      if (isSubmitting || submitBtn.disabled) return;
-
-      var name = document.getElementById("name").value.trim();
-      var phone = document.getElementById("phone").value.trim();
-      var address = document.getElementById("address").value.trim();
-      var notes = document.getElementById("notes").value.trim();
-      var totalAmount = basePrice * currentQty;
-
-      if (!name || !phone || !address) {
-        alert('অনুগ্রহ করে প্রয়োজনীয় তথ্যগুলো পূরণ করুন।');
-        return;
-      }
-
-      isSubmitting = true;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
-
-      var purchaseEventId = 'purch_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-
-      try {
-        if (typeof fbq === "function") {
-          fbq("track", "Purchase", {
-            value: totalAmount,
-            currency: "BDT"
-          }, { event_id: purchaseEventId });
+        var orderSec = document.getElementById("order-section");
+        if(orderSec) {
+          orderSec.scrollIntoView({ behavior: 'smooth' });
         }
-      } catch (e) { console.error("Pixel Purchase Error", e); }
+      }
 
-      sendCapi({
-        event_name: "Purchase",
-        event_id: purchaseEventId,
-        value: totalAmount,
-        currency: "BDT",
-        phone: phone,
-        name: name
-      });
+      function scrollRv(direction) {
+        var rvTrack = document.getElementById("rv");
+        if(rvTrack) {
+          rvTrack.scrollBy({ left: direction * rvTrack.clientWidth, behavior: 'smooth' });
+        }
+      }
 
-      var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
-      var formData = new URLSearchParams();
-      formData.append("entry.820594857", name);
-      formData.append("entry.1363179355", phone);
-      formData.append("entry.1521714117", address);
-      formData.append("entry.880453828", notes);
+      function updateQty(change) {
+        currentQty += change;
+        if (currentQty < 1) currentQty = 1;
 
-      fetch(formUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: formData
-      }).catch(function(err){
-        console.error("Form submit error", err);
-      });
+        var totalPrice = basePrice * currentQty;
+        var formattedPrice = '৳ ' + totalPrice.toLocaleString('en-US') + '.00';
 
-      setTimeout(function() {
+        document.getElementById('qtyDisplay').innerText = currentQty;
+        document.getElementById('summaryQty').innerText = currentQty;
+        document.getElementById('summarySubtotal').innerText = formattedPrice;
+        document.getElementById('summaryTotal').innerText = formattedPrice;
+        var btnPriceEl = document.getElementById('btnPrice');
+        if (btnPriceEl) btnPriceEl.innerText = formattedPrice;
+      }
+
+      function resetSubmitButton() {
+        var btn = document.getElementById("submitBtn");
+        if (!btn) return;
+        var formattedPrice = '৳ ' + (basePrice * currentQty).toLocaleString('en-US') + '.00';
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> <span>অর্ডার কনফার্ম করুন <span id="btnPrice">' + formattedPrice + '</span></span>';
+        btn.disabled = false;
+      }
+
+      function handleFormSubmit(event) {
+        event.preventDefault();
+
+        /* শুধুমাত্র আসল "অর্ডার কনফার্ম করুন" সাবমিট বাটন থেকেই Purchase ইভেন্ট কাউন্ট হবে */
+        if (event.isTrusted === false) return;
+        if (event.submitter && event.submitter.id !== "submitBtn") return;
+
+        var submitBtn = document.getElementById("submitBtn");
+        if (isSubmitting || submitBtn.disabled) return;
+
+        var name = document.getElementById("name").value.trim();
+        var phone = document.getElementById("phone").value.trim();
+        var address = document.getElementById("address").value.trim();
+        var notes = document.getElementById("notes").value.trim();
+        var totalAmount = basePrice * currentQty;
+
+        if (!name || !phone || !address) {
+          alert('অনুগ্রহ করে প্রয়োজনীয় তথ্যগুলো পূরণ করুন।');
+          return;
+        }
+
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
+
+        var purchaseEventId = 'purch_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
         try {
-          showSuccessMessage(name, phone, address, totalAmount);
-        } catch (err) {
-          console.error("Receipt error", err);
-        } finally {
-          resetSubmitButton();
-          isSubmitting = false;
-        }
-      }, 1250);
-    }
+          if (typeof fbq === "function") {
+            fbq("track", "Purchase", {
+              value: totalAmount,
+              currency: "BDT"
+            }, { event_id: purchaseEventId });
+          }
+        } catch (e) { console.error("Pixel Purchase Error", e); }
 
-    function showSuccessMessage(name, phone, address, totalAmountNum) {
-      var totalAmountStr = '৳ ' + totalAmountNum.toLocaleString('en-US') + '.00';
+        sendCapi({
+          event_name: "Purchase",
+          event_id: purchaseEventId,
+          value: totalAmount,
+          currency: "BDT",
+          phone: phone,
+          name: name
+        });
 
-      document.getElementById("recName").innerText = name;
-      document.getElementById("recPhone").innerText = phone;
-      document.getElementById("recAddress").innerText = address;
-      document.getElementById("recTotalAmount").innerText = totalAmountStr;
+        var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFyYJcaKCzu2mZ1hxAxqoHdSgkQauPto8KAJS5BHECtb4YeA/formResponse";
+        var formData = new URLSearchParams();
+        formData.append("entry.820594857", name);
+        formData.append("entry.1363179355", phone);
+        formData.append("entry.1521714117", address);
+        formData.append("entry.880453828", notes);
 
-      var randomId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-      document.getElementById("recOrderId").innerText = '#' + randomId;
-      
-      var today = new Date();
-      var dateStr = today.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
-      document.getElementById("orderDate").innerText = dateStr;
+        fetch(formUrl, {
+          method: "POST",
+          mode: "no-cors",
+          body: formData
+        }).catch(function(err){
+          console.error("Form submit error", err);
+        });
 
-      var whatsappText = `হ্যালো, আমি একটি নতুন অর্ডার করেছি।%0aঅর্ডার আইডি: %23${randomId}%0aনাম: ${encodeURIComponent(name)}%0aফোন: ${phone}%0aঠিকানা: ${encodeURIComponent(address)}%0aমোট মূল্য: ${totalAmountStr}`;
-      var whatsappUrl = `https://wa.me/8801868483379?text=${whatsappText}`;
-      document.getElementById("whatsappShareBtn").setAttribute("href", whatsappUrl);
+        setTimeout(function() {
+          try {
+            showSuccessMessage(name, phone, address, totalAmount);
+          } catch (err) {
+            console.error("Receipt error", err);
+          } finally {
+            resetSubmitButton();
+            isSubmitting = false;
+          }
+        }, 1250);
+      }
 
-      document.getElementById("receiptModal").classList.remove("hidden");
-      document.getElementById("receiptModal").classList.add("flex");
+      function showSuccessMessage(name, phone, address, totalAmountNum) {
+        var totalAmountStr = '৳ ' + totalAmountNum.toLocaleString('en-US') + '.00';
 
-      document.getElementById("customOrderForm").reset();
-      currentQty = 1;
-      updateQty(0);
-    }
+        document.getElementById("recName").innerText = name;
+        document.getElementById("recPhone").innerText = phone;
+        document.getElementById("recAddress").innerText = address;
+        document.getElementById("recTotalAmount").innerText = totalAmountStr;
 
-    function closeReceiptModal() {
-      document.getElementById("receiptModal").classList.add("hidden");
-      document.getElementById("receiptModal").classList.remove("flex");
-      resetSubmitButton();
-    }
+        var randomId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById("recOrderId").innerText = '#' + randomId;
+        
+        var today = new Date();
+        var dateStr = today.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
+        document.getElementById("orderDate").innerText = dateStr;
 
-    function startTimer(duration, h, m, s) {
-      var timer = duration, hours, minutes, seconds;
-      setInterval(function () {
-        hours = parseInt(timer / 3600, 10);
-        minutes = parseInt((timer % 3600) / 60, 10);
-        seconds = parseInt(timer % 60, 10);
+        var whatsappText = `হ্যালো, আমি একটি নতুন অর্ডার করেছি।%0aঅর্ডার আইডি: %23${randomId}%0aনাম: ${encodeURIComponent(name)}%0aফোন: ${phone}%0aঠিকানা: ${encodeURIComponent(address)}%0aমোট মূল্য: ${totalAmountStr}`;
+        var whatsappUrl = `https://wa.me/8801868483379?text=${whatsappText}`;
+        document.getElementById("whatsappShareBtn").setAttribute("href", whatsappUrl);
 
-        hours = hours < 10 ? "0" + hours : hours;
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+        document.getElementById("receiptModal").classList.remove("hidden");
+        document.getElementById("receiptModal").classList.add("flex");
 
-        if(h) h.textContent = hours;
-        if(m) m.textContent = minutes;
-        if(s) s.textContent = seconds;
+        document.getElementById("customOrderForm").reset();
+        currentQty = 1;
+        updateQty(0);
+      }
 
-        if (--timer < 0) { timer = duration; }
-      }, 1000);
-    }
+      function closeReceiptModal() {
+        document.getElementById("receiptModal").classList.add("hidden");
+        document.getElementById("receiptModal").classList.remove("flex");
+        resetSubmitButton();
+      }
 
-    window.onload = function () {
-      var sixHours = 60 * 60 * 6,
-          h = document.querySelector('#hours'),
-          m = document.querySelector('#minutes'),
-          s = document.querySelector('#seconds');
-      if(h && m && s) startTimer(sixHours, h, m, s);
+      function startTimer(duration, h, m, s) {
+        var timer = duration, hours, minutes, seconds;
+        setInterval(function () {
+          hours = parseInt(timer / 3600, 10);
+          minutes = parseInt((timer % 3600) / 60, 10);
+          seconds = parseInt(timer % 60, 10);
 
-      [
-        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
-        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
-        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcvBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
-        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LuThHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
-      ].forEach(function(imgSrc) {
-          var rvTrack = document.getElementById("rv");
-          if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
-      });
-    };
-  </script>
-<!-- আপনার ওয়েবসাইটের বাকি সব ডিজাইন ও কন্টেন্ট এখানে থাকবে -->
-    <div class="offer-card-container">
-        <!-- আপনার অফার কার্ডের কোড -->
-    </div>
+          hours = hours < 10 ? "0" + hours : hours;
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
 
-    <!-- এই জায়গায় স্ক্রিপ্টটি বসাতে হবে -->
-    <script>
-        function scrollToOrder() {
-            // এখানে 'order-form' এর জায়গায় আপনার অর্ডার সেকশনের আসল ID বা Class বসাবেন
-            const orderSection = document.getElementById('order-section'); 
-            
-            if (orderSection) {
-                orderSection.scrollIntoView({ 
-                    behavior: 'smooth' 
-                });
-            }
-        }
+          if(h) h.textContent = hours;
+          if(m) m.textContent = minutes;
+          if(s) s.textContent = seconds;
+
+          if (--timer < 0) { timer = duration; }
+        }, 1000);
+      }
+
+      window.onload = function () {
+        var sixHours = 60 * 60 * 6,
+            h = document.querySelector('#hours'),
+            m = document.querySelector('#minutes'),
+            s = document.querySelector('#seconds');
+        if(h && m && s) startTimer(sixHours, h, m, s);
+
+        [
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LtUXpSD8vvDZcFukK_wPCezgwFWganUOipjNkpOlHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYzgbXIWXa55d8YSOB5y4SLje1cPjsXDwv1I0k4LGVnMhvUxemuFO38W-A7WppnocFG2rd-2WzKQ7_-OwPld3dWgustFEh_lM5WGHTfmt8W1QcqBLxABh7cxfCXomE53IDjhw8n13ttf-xK6x1TkmtnmH3-t7tQum_rDOVSDhlrg123m7WFZftNfTI2DI/w288-h640/Review%2002.jpeg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZUmbhpi0FRUa3dsrj59HjCZx-vWhWau7J_GtcCRLBDT0EvJ5NAUoBu2KqRpkO9LuThHunNLCZ8RilSPPrlccOfpePZvmNu-SKhRoaLmNSoW3Koc6fuFEoWou2esYQQJ58vMChTVONOhh8IBoNu-VARJ0/w286-h640/Review%2001.jpg"
+        ].forEach(function(imgSrc) {
+            var rvTrack = document.getElementById("rv");
+            if(rvTrack) rvTrack.insertAdjacentHTML("beforeend", `<img src="${imgSrc}" loading="lazy">`);
+        });
+      };
     </script>
-<script>
-    function scrollToOrderSection() {
-        const orderSection = document.getElementById('order-section'); 
-        if (orderSection) {
-            orderSection.scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-        }
-    }
-</script>
 </body>
 </html>
